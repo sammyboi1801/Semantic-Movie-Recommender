@@ -323,7 +323,8 @@ Edge cases are excluded from aggregate averages.
 
 ## Demo
 
-> <video src="https://youtu.be/P8od4AswcgM" controls width="100%"></video>
+> https://github.com/user-attachments/assets/fb5475cd-0589-4f1d-aa04-7afcb4bdc457
+
 
 Sample queries to try:
 
