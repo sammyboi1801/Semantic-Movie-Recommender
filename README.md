@@ -323,7 +323,7 @@ Edge cases are excluded from aggregate averages.
 
 ## Demo
 
-> **Add a screenshot of the UI with a sample query and results here.**
+> <video src="data/demo_video.mp4" controls width="100%"></video>
 
 Sample queries to try:
 
