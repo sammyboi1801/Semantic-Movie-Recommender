@@ -323,7 +323,7 @@ Edge cases are excluded from aggregate averages.
 
 ## Demo
 
-> <video src="[data/demo_video.mp4](https://youtu.be/P8od4AswcgM)" controls width="100%"></video>
+> <video src="https://youtu.be/P8od4AswcgM" controls width="100%"></video>
 
 Sample queries to try:
 
