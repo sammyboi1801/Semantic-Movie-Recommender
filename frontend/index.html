@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Movie Recommender</title>
+
+  <!-- Film clapperboard favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='88'>🎬</text></svg>" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * { -webkit-font-smoothing: antialiased; box-sizing: border-box; }
+
+    body {
+      background-color: #080808;
+      background-image: radial-gradient(rgba(255,255,255,0.045) 1px, transparent 1px);
+      background-size: 28px 28px;
+      background-attachment: fixed;
+      color: #e0e0e0;
+      margin: 0;
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+
+    /* ── Search section: centered on load, slides to top on search ── */
+    #search-section {
+      width: 100%;
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      /* Large top padding centers the content in the viewport.
+         Half viewport minus half the approximate content height (~110px). */
+      padding-top: calc(50vh - 110px);
+      padding-bottom: 3rem;
+      transition: padding-top 0.55s cubic-bezier(0.33, 1, 0.68, 1),
+                  padding-bottom 0.55s cubic-bezier(0.33, 1, 0.68, 1);
+    }
+
+    #search-section.compact {
+      padding-top: 3.5rem;
+      padding-bottom: 1.5rem;
+    }
+
+    /* Subtitle fades out after first search to reclaim space */
+    #subtitle {
+      transition: opacity 0.35s ease, max-height 0.35s ease, margin 0.35s ease;
+      max-height: 40px;
+      overflow: hidden;
+    }
+    #subtitle.hidden-after-search {
+      opacity: 0;
+      max-height: 0;
+      margin-bottom: 0 !important;
+    }
+
+    /* ── Results section ── */
+    #results-section {
+      width: 100%;
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 0 1.5rem 5rem;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.4s ease 0.25s, transform 0.4s ease 0.25s;
+      pointer-events: none;
+    }
+    #results-section.visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: all;
+    }
+
+    /* ── Input ── */
+    .input-field {
+      background: #0e0e0e;
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #e0e0e0;
+      width: 100%;
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .input-field:focus {
+      outline: none;
+      border-color: rgba(255,255,255,0.18);
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.03);
+    }
+    .input-field::placeholder { color: #333; }
+
+    /* ── Button ── */
+    .btn {
+      background: #efefef;
+      color: #080808;
+      font-weight: 500;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 18px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .btn:hover { background: #fff; }
+    .btn:disabled { background: #1a1a1a; color: #333; cursor: not-allowed; }
+
+    /* ── Pipeline mode selector ── */
+    .mode-radio { display: none; }
+    .mode-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #333;
+      padding: 3px 9px;
+      border-radius: 3px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: color 0.12s, background 0.12s, border-color 0.12s;
+      user-select: none;
+    }
+    .mode-radio:checked + .mode-label {
+      color: #aaa;
+      background: rgba(255,255,255,0.05);
+      border-color: rgba(255,255,255,0.09);
+    }
+    .mode-label:hover { color: #666; }
+
+    /* ── Cards ── */
+    .card {
+      background: #0e0e0e;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      overflow: hidden;
+      transition: border-color 0.15s;
+    }
+    .card:hover { border-color: rgba(255,255,255,0.11); }
+
+    /* ── Tags / badges ── */
+    .tag {
+      display: inline-block;
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 3px;
+      border: 1px solid rgba(255,255,255,0.07);
+      background: rgba(255,255,255,0.03);
+      color: #555;
+      letter-spacing: 0.01em;
+    }
+    .badge-movie { background: rgba(59,130,246,0.08); border-color: rgba(59,130,246,0.15); color: #5a9cf5; }
+    .badge-tv    { background: rgba(139,92,246,0.08); border-color: rgba(139,92,246,0.15); color: #9d78f5; }
+
+    /* ── Confidence bar at top of card ── */
+    .conf-track { height: 2px; background: rgba(255,255,255,0.04); }
+    .conf-fill  { height: 2px; transition: width 0.7s cubic-bezier(0.4,0,0.2,1); }
+
+    /* ── Description toggle ── */
+    .desc-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #2e2e2e;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      transition: color 0.1s;
+    }
+    .desc-btn:hover { color: #555; }
+
+    /* ── Skeleton shimmer ── */
+    @keyframes shimmer {
+      0%   { background-position: -600px 0; }
+      100% { background-position: 600px 0; }
+    }
+    .skeleton {
+      background: linear-gradient(90deg, #111 25%, #191919 50%, #111 75%);
+      background-size: 1200px 100%;
+      animation: shimmer 1.6s infinite;
+      border-radius: 3px;
+    }
+
+    /* ── Interpreted-as strip ── */
+    .intent-strip {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #2e2e2e;
+      margin-bottom: 1.25rem;
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: baseline;
+    }
+    .intent-strip .label { color: #222; }
+    .intent-strip .value { color: #4a4a4a; }
+  </style>
+</head>
+
+<body>
+
+  <!-- ELEMENT 1 + button live in search-section -->
+  <div id="search-section">
+
+    <!-- Branding -->
+    <div style="margin-bottom: 2rem; display: flex; align-items: center; gap: 8px;">
+      <span style="font-size: 18px; line-height:1">🎬</span>
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #444; letter-spacing: 0.04em;">movie.rec</span>
+    </div>
+
+    <!-- Heading -->
+    <h1 style="font-size: 22px; font-weight: 600; color: #f0f0f0; letter-spacing: -0.02em; margin: 0 0 6px;">
+      What are you looking for?
+    </h1>
+    <p id="subtitle" style="font-size: 13px; color: #3a3a3a; margin: 0 0 20px;">
+      Describe a mood, reference a title, or be as vague as you want.
+    </p>
+
+    <!-- Search row -->
+    <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+      <!-- ELEMENT 1: input -->
+      <input
+        id="query"
+        type="text"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="something slow and quiet but devastating..."
+        class="input-field"
+      />
+      <!-- ELEMENT 2: button -->
+      <button id="submit-btn" class="btn" onclick="handleSearch()">Search</button>
+    </div>
+
+    <!-- Pipeline mode -->
+    <div style="display: flex; align-items: center; gap: 4px;">
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #222; margin-right: 6px;">pipeline</span>
+      <input type="radio" id="m-fast"     name="mode" value="fast"     class="mode-radio" />
+      <label for="m-fast"     class="mode-label">fast</label>
+      <input type="radio" id="m-balanced" name="mode" value="balanced" class="mode-radio" />
+      <label for="m-balanced" class="mode-label">balanced</label>
+      <input type="radio" id="m-full"     name="mode" value="full"     class="mode-radio" checked />
+      <label for="m-full"     class="mode-label">full</label>
+    </div>
+
+  </div>
+
+  <!-- ELEMENT 3: results -->
+  <div id="results-section">
+    <div id="results"></div>
+  </div>
+
+  <script>
+    const queryInput    = document.getElementById('query');
+    const submitBtn     = document.getElementById('submit-btn');
+    const resultsDiv    = document.getElementById('results');
+    const resultsSection = document.getElementById('results-section');
+    const searchSection = document.getElementById('search-section');
+    const subtitle      = document.getElementById('subtitle');
+
+    let hasSearched = false;
+
+    queryInput.addEventListener('keydown', e => { if (e.key === 'Enter') handleSearch(); });
+
+    function selectedMode() {
+      return (document.querySelector('input[name="mode"]:checked') || {}).value || 'full';
+    }
+
+    function setLoading(on) {
+      submitBtn.disabled = on;
+      submitBtn.textContent = on ? '...' : 'Search';
+    }
+
+    function escape(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function transitionIn() {
+      if (!hasSearched) {
+        hasSearched = true;
+        searchSection.classList.add('compact');
+        subtitle.classList.add('hidden-after-search');
+      }
+      resultsSection.classList.remove('visible');
+    }
+
+    function revealResults() {
+      resultsSection.classList.add('visible');
+    }
+
+    function showSkeleton() {
+      transitionIn();
+      resultsDiv.innerHTML = `
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          ${[1,2,3].map(() => `
+            <div class="card">
+              <div class="conf-track"><div class="skeleton" style="width:100%; height:2px;"></div></div>
+              <div style="padding:18px 20px; display:flex; flex-direction:column; gap:10px;">
+                <div class="skeleton" style="height:14px; width:45%;"></div>
+                <div style="display:flex; gap:8px;">
+                  <div class="skeleton" style="height:11px; width:13%;"></div>
+                  <div class="skeleton" style="height:11px; width:9%;"></div>
+                  <div class="skeleton" style="height:11px; width:18%;"></div>
+                </div>
+                <div class="skeleton" style="height:11px; width:90%;"></div>
+                <div class="skeleton" style="height:11px; width:75%;"></div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      setTimeout(revealResults, 50);
+    }
+
+    function showError(msg) {
+      resultsDiv.innerHTML = `
+        <div class="card" style="border-color: rgba(239,68,68,0.12); padding: 16px 20px;">
+          <p style="font-size:13px; color:#e05252; margin:0;">${escape(msg)}</p>
+        </div>
+      `;
+      revealResults();
+    }
+
+    function confColor(c) {
+      if (c >= 0.8) return '#10b981';
+      if (c >= 0.6) return '#f59e0b';
+      return '#3f3f46';
+    }
+
+    function renderResults(data) {
+      const recs = data.recommendations || [];
+
+      if (!recs.length) {
+        resultsDiv.innerHTML = `<p style="font-size:13px; color:#333; text-align:center; padding: 3rem 0;">No results. Try a different query.</p>`;
+        revealResults();
+        return;
+      }
+
+      // Interpreted-as strip
+      let intentHtml = '';
+      const ia = data.interpreted_as;
+      if (ia && ia.enriched_query) {
+        const pills = [
+          ia.mood          ? `<span style="color:#8b78f0">${escape(ia.mood)}</span>` : '',
+          ia.content_type  ? `<span style="color:#5a9cf5">${escape(ia.content_type)}</span>` : '',
+          ia.era_preference ? `<span style="color:#e8924a">${escape(ia.era_preference)}</span>` : '',
+        ].filter(Boolean).join('<span style="color:#222"> · </span>');
+
+        intentHtml = `
+          <div class="intent-strip">
+            <span class="label">read as</span>
+            <span class="value">${escape(ia.enriched_query)}</span>
+            ${pills ? `<span style="margin-left:auto; flex-shrink:0;">${pills}</span>` : ''}
+          </div>
+        `;
+      }
+
+      const cards = recs.map((rec, i) => {
+        const conf = rec.confidence;
+        const confBar = conf != null ? `
+          <div class="conf-track">
+            <div class="conf-fill" style="width:${Math.round(conf * 100)}%; background:${confColor(conf)};"></div>
+          </div>
+        ` : '';
+
+        const badge = rec.type === 'Movie'
+          ? `<span class="tag badge-movie" style="font-size:10px; font-weight:500; text-transform:uppercase; letter-spacing:0.04em;">Movie</span>`
+          : `<span class="tag badge-tv"    style="font-size:10px; font-weight:500; text-transform:uppercase; letter-spacing:0.04em;">TV Show</span>`;
+
+        const genres = (rec.genres || []).slice(0, 3)
+          .map(g => `<span class="tag">${escape(g)}</span>`).join('');
+
+        const reason = rec.match_reason
+          ? `<p style="font-size:12px; color:#4e4e4e; font-style:italic; line-height:1.6; margin:6px 0 0;">${escape(rec.match_reason)}</p>`
+          : '';
+
+        const confPct = conf != null
+          ? `<span style="font-family: 'JetBrains Mono', monospace; font-size:11px; color:#262626;">${Math.round(conf*100)}%</span>`
+          : '';
+
+        const descId = `d${i}`;
+
+        return `
+          <div class="card">
+            ${confBar}
+            <div style="padding: 16px 20px; display:flex; flex-direction:column; gap:10px;">
+
+              <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
+                <div style="flex:1; min-width:0;">
+                  <h3 style="font-size:15px; font-weight:600; color:#f0f0f0; margin:0 0 7px; letter-spacing:-0.01em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                    ${escape(rec.title)}
+                  </h3>
+                  <div style="display:flex; flex-wrap:wrap; align-items:center; gap:5px;">
+                    ${badge}
+                    <span style="font-size:10px; color:#2a2a2a;">${rec.release_year || ''}</span>
+                    ${genres}
+                  </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px; flex-shrink:0; padding-top:2px;">
+                  ${confPct}
+                  <span style="font-family: 'JetBrains Mono', monospace; font-size:11px; color:#1e1e1e;">#${i+1}</span>
+                </div>
+              </div>
+
+              ${reason}
+
+              <div>
+                <button class="desc-btn" onclick="toggleDesc('${descId}', this)">+ description</button>
+                <p id="${descId}" style="display:none; font-size:12px; color:#3e3e3e; line-height:1.65; margin:8px 0 0;">
+                  ${escape(rec.description)}
+                </p>
+              </div>
+
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const footer = `
+        <div style="display:flex; justify-content:space-between; padding-top:4px;">
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#1e1e1e;">${recs.length} results</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#1e1e1e;">${escape(data.pipeline_used)} pipeline</span>
+        </div>
+      `;
+
+      resultsDiv.innerHTML = intentHtml + `<div style="display:flex; flex-direction:column; gap:10px;">${cards}</div>` + footer;
+      revealResults();
+    }
+
+    function toggleDesc(id, btn) {
+      const el = document.getElementById(id);
+      const hidden = el.style.display === 'none';
+      el.style.display = hidden ? 'block' : 'none';
+      btn.textContent = hidden ? '- description' : '+ description';
+    }
+
+    async function handleSearch() {
+      const query = queryInput.value.trim();
+      if (!query) { queryInput.focus(); return; }
+
+      setLoading(true);
+      showSkeleton();
+
+      try {
+        const resp = await fetch('/recommend', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query, pipeline_mode: selectedMode() }),
+        });
+
+        if (!resp.ok) {
+          const err = await resp.json().catch(() => ({}));
+          const detail = err.detail?.[0]?.msg || err.detail || `HTTP ${resp.status}`;
+          showError(detail);
+          return;
+        }
+
+        renderResults(await resp.json());
+
+      } catch {
+        showError('Could not reach the server.');
+      } finally {
+        setLoading(false);
+      }
+    }
+  </script>
+
+</body>
+</html>

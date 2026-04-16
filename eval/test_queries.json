@@ -1,0 +1,262 @@
+[
+  {
+    "id": "A1",
+    "type": "vague_mood",
+    "query": "something unsettling that stays with you",
+    "expected_genres": ["Horror Movies", "Thrillers", "Dramas"],
+    "expected_type": null,
+    "forbidden_genres": ["Children & Family Movies", "Kids' TV"],
+    "graded_relevance": {
+      "strong": ["Horror", "Thriller", "Psychological"],
+      "weak": ["Drama", "Crime", "Mystery", "Suspense"]
+    },
+    "notes": "Vague mood query — should surface atmospheric horror/thriller, not action or comedy"
+  },
+  {
+    "id": "A2",
+    "type": "vague_mood",
+    "query": "feel-good movie for a lazy Sunday",
+    "expected_genres": ["Comedies", "Romantic Movies", "Children & Family Movies"],
+    "expected_type": "Movie",
+    "forbidden_genres": ["Horror Movies", "Crime TV Shows"],
+    "graded_relevance": {
+      "strong": ["Comedies", "Romantic Movies", "Children & Family Movies"],
+      "weak": ["Dramas", "Documentaries", "Reality TV"]
+    },
+    "notes": "Mood is light/warm — should avoid dark or heavy content"
+  },
+  {
+    "id": "A3",
+    "type": "vague_mood",
+    "query": "something with real emotional weight, not Hollywood fluff",
+    "expected_genres": ["Dramas", "Independent Movies", "International Movies"],
+    "expected_type": null,
+    "forbidden_genres": ["Children & Family Movies"],
+    "graded_relevance": {
+      "strong": ["Dramas", "Independent Movies", "International Movies"],
+      "weak": ["Documentaries", "TV Dramas"]
+    },
+    "notes": "Should favor arthouse/indie/international over mainstream blockbusters"
+  },
+  {
+    "id": "A4",
+    "type": "vague_mood",
+    "query": "dark and atmospheric, like a fever dream",
+    "expected_genres": ["Horror Movies", "Thrillers", "Sci-Fi & Fantasy"],
+    "expected_type": null,
+    "forbidden_genres": ["Children & Family Movies", "Comedies", "Reality TV"],
+    "graded_relevance": {
+      "strong": ["Horror Movies", "TV Horror", "Sci-Fi & Fantasy"],
+      "weak": ["Thrillers", "Dramas", "Mystery"]
+    },
+    "notes": "Surreal/atmospheric — psychological horror or dark sci-fi preferred"
+  },
+  {
+    "id": "A5",
+    "type": "vague_mood",
+    "query": "a movie that makes you think long after it ends",
+    "expected_genres": ["Dramas", "Sci-Fi & Fantasy", "Thrillers"],
+    "expected_type": null,
+    "forbidden_genres": ["Children & Family Movies", "Reality TV"],
+    "graded_relevance": {
+      "strong": ["Dramas", "Independent Movies", "Sci-Fi & Fantasy"],
+      "weak": ["Thrillers", "Documentaries", "International Movies"]
+    },
+    "notes": "Thought-provoking — cerebral dramas, existential sci-fi, or philosophical thrillers"
+  },
+  {
+    "id": "A6",
+    "type": "vague_mood",
+    "query": "something funny but a little heartbreaking",
+    "expected_genres": ["Comedies", "Dramas"],
+    "expected_type": null,
+    "forbidden_genres": ["Horror Movies", "Action & Adventure"],
+    "graded_relevance": {
+      "strong": ["Comedies", "Dramas"],
+      "weak": ["Romantic Movies", "Independent Movies", "International Movies"]
+    },
+    "notes": "Bittersweet tone — should surface dramedy, not pure comedy or pure drama"
+  },
+  {
+    "id": "B1",
+    "type": "semi_structured",
+    "query": "dark comedy from the 2010s",
+    "expected_genres": ["Comedies", "Dramas"],
+    "expected_type": null,
+    "forbidden_genres": ["Children & Family Movies", "Kids' TV"],
+    "graded_relevance": {
+      "strong": ["Comedies", "TV Comedies"],
+      "weak": ["Dramas", "Crime TV Shows", "TV Dramas"]
+    },
+    "notes": "Era filter (2010s) and tone filter (dark comedy) should both apply"
+  },
+  {
+    "id": "B2",
+    "type": "semi_structured",
+    "query": "thriller series with a female lead",
+    "expected_genres": ["TV Thrillers", "Crime TV Shows", "TV Dramas"],
+    "expected_type": "TV Show",
+    "forbidden_genres": ["Kids' TV", "Anime Series"],
+    "graded_relevance": {
+      "strong": ["TV Thrillers", "Crime TV Shows"],
+      "weak": ["TV Dramas", "TV Mysteries", "International TV Shows"]
+    },
+    "notes": "Content type should resolve to TV Show; female lead should influence ranking"
+  },
+  {
+    "id": "B3",
+    "type": "semi_structured",
+    "query": "sci-fi movies from the 90s",
+    "expected_genres": ["Sci-Fi & Fantasy", "Action & Adventure"],
+    "expected_type": "Movie",
+    "forbidden_genres": ["Kids' TV", "Reality TV"],
+    "graded_relevance": {
+      "strong": ["Sci-Fi & Fantasy"],
+      "weak": ["Action & Adventure", "Thrillers", "Classic Movies"]
+    },
+    "notes": "Both content type (Movie) and era (90s) are explicit — both filters should apply"
+  },
+  {
+    "id": "B4",
+    "type": "semi_structured",
+    "query": "Korean drama with romance",
+    "expected_genres": ["Romantic TV Shows", "TV Dramas", "International TV Shows"],
+    "expected_type": "TV Show",
+    "forbidden_genres": ["Kids' TV", "Anime Series"],
+    "graded_relevance": {
+      "strong": ["Romantic TV Shows", "TV Dramas"],
+      "weak": ["International TV Shows", "TV Comedies"]
+    },
+    "notes": "International + romance + drama — should surface K-drama catalog"
+  },
+  {
+    "id": "B5",
+    "type": "semi_structured",
+    "query": "crime documentaries about real cases",
+    "expected_genres": ["Crime TV Shows", "Docuseries", "Documentaries"],
+    "expected_type": null,
+    "forbidden_genres": ["Children & Family Movies", "Anime Series"],
+    "graded_relevance": {
+      "strong": ["Docuseries", "Crime TV Shows"],
+      "weak": ["Documentaries", "TV Mysteries"]
+    },
+    "notes": "Should distinguish documentary format from fictional crime dramas"
+  },
+  {
+    "id": "B6",
+    "type": "semi_structured",
+    "query": "action movie with a revenge plot",
+    "expected_genres": ["Action & Adventure", "Thrillers"],
+    "expected_type": "Movie",
+    "forbidden_genres": ["Kids' TV", "Reality TV", "Documentaries"],
+    "graded_relevance": {
+      "strong": ["Action & Adventure", "Thrillers"],
+      "weak": ["Dramas", "Crime TV Shows"]
+    },
+    "notes": "Clear genre + narrative arc — should surface revenge-driven action films"
+  },
+  {
+    "id": "C1",
+    "type": "explicit_reference",
+    "query": "movies like Inception",
+    "expected_genres": ["Sci-Fi & Fantasy", "Thrillers", "Action & Adventure"],
+    "expected_type": "Movie",
+    "forbidden_genres": ["Kids' TV", "Reality TV"],
+    "graded_relevance": {
+      "strong": ["Sci-Fi & Fantasy", "Thrillers"],
+      "weak": ["Action & Adventure", "Dramas"]
+    },
+    "notes": "Mind-bending, layered narrative, cerebral sci-fi thriller territory"
+  },
+  {
+    "id": "C2",
+    "type": "explicit_reference",
+    "query": "something similar to Breaking Bad",
+    "expected_genres": ["Crime TV Shows", "TV Dramas", "TV Thrillers"],
+    "expected_type": "TV Show",
+    "forbidden_genres": ["Kids' TV", "Anime Series", "Reality TV"],
+    "graded_relevance": {
+      "strong": ["Crime TV Shows", "TV Thrillers"],
+      "weak": ["TV Dramas", "International TV Shows"]
+    },
+    "notes": "Moral descent, crime drama, antihero arc — TV show format implied"
+  },
+  {
+    "id": "C3",
+    "type": "explicit_reference",
+    "query": "if you liked The Dark Knight recommend something similar",
+    "expected_genres": ["Action & Adventure", "Thrillers", "Sci-Fi & Fantasy"],
+    "expected_type": "Movie",
+    "forbidden_genres": ["Kids' TV", "Romantic Movies", "Reality TV"],
+    "graded_relevance": {
+      "strong": ["Action & Adventure", "Thrillers"],
+      "weak": ["Dramas", "Sci-Fi & Fantasy", "Crime TV Shows"]
+    },
+    "notes": "Dark, grounded superhero adjacent — crime thriller territory"
+  },
+  {
+    "id": "C4",
+    "type": "explicit_reference",
+    "query": "more shows like Squid Game",
+    "expected_genres": ["TV Dramas", "TV Thrillers", "International TV Shows"],
+    "expected_type": "TV Show",
+    "forbidden_genres": ["Kids' TV", "Reality TV"],
+    "graded_relevance": {
+      "strong": ["TV Thrillers", "International TV Shows", "TV Dramas"],
+      "weak": ["Crime TV Shows", "TV Mysteries"]
+    },
+    "notes": "Korean survival thriller — international content should score high"
+  },
+  {
+    "id": "C5",
+    "type": "explicit_reference",
+    "query": "in the same vein as Parasite",
+    "expected_genres": ["International Movies", "Dramas", "Thrillers"],
+    "expected_type": "Movie",
+    "forbidden_genres": ["Kids' TV", "Reality TV", "Comedies"],
+    "graded_relevance": {
+      "strong": ["International Movies", "Dramas"],
+      "weak": ["Thrillers", "Independent Movies"]
+    },
+    "notes": "Korean social thriller — class commentary, dark undertone, genre-blending"
+  },
+  {
+    "id": "C6",
+    "type": "explicit_reference",
+    "query": "movies with the same energy as Joker",
+    "expected_genres": ["Dramas", "Thrillers", "Crime TV Shows"],
+    "expected_type": "Movie",
+    "forbidden_genres": ["Children & Family Movies", "Kids' TV", "Reality TV"],
+    "graded_relevance": {
+      "strong": ["Dramas", "Thrillers"],
+      "weak": ["Crime TV Shows", "Independent Movies", "Action & Adventure"]
+    },
+    "notes": "Character study, psychological, dark urban atmosphere"
+  },
+  {
+    "id": "E1",
+    "type": "edge_case",
+    "query": "xyzzy plugh frobozz qwerty nonsense",
+    "expected_genres": [],
+    "expected_type": null,
+    "forbidden_genres": [],
+    "graded_relevance": {
+      "strong": [],
+      "weak": []
+    },
+    "notes": "Gibberish query — should return some results without crashing (graceful handling), not HTTP 500"
+  },
+  {
+    "id": "E2",
+    "type": "edge_case",
+    "query": "   ",
+    "expected_genres": [],
+    "expected_type": null,
+    "forbidden_genres": [],
+    "graded_relevance": {
+      "strong": [],
+      "weak": []
+    },
+    "notes": "Whitespace-only — Pydantic validator should return HTTP 422, not 500"
+  }
+]

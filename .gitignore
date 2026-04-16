@@ -1,0 +1,26 @@
+# API key — copy .env.example to .env, fill in your key, never commit it
+.env
+
+# Generated at build time — not source, not needed in the repo
+data/embeddings.npy
+data/titles_index.json
+
+# Backup UI version
+frontend/index_v1.html
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db

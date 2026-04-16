@@ -1,0 +1,21 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+# Web framework
+fastapi==0.135.3
+uvicorn[standard]==0.44.0
+
+# AI/ML: CPU-only torch keeps Docker image roughly 1.5GB smaller than the CUDA default
+torch==2.11.0+cpu
+torchvision==0.26.0+cpu
+sentence-transformers==5.4.1
+
+# Numerics
+numpy==2.4.4
+pandas==3.0.2
+scipy==1.17.1
+
+# Groq API client
+groq==1.1.2
+
+# Utilities
+python-dotenv==1.2.2
