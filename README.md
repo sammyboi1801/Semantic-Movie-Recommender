@@ -1,5 +1,5 @@
 # Movie Recommender
-![dashboard.png](../data/dashboard.png)
+![dashboard.png](data/dashboard.png)
 Semantic movie recommendation over the Netflix catalog. A natural language query goes through up to three stages: an LLM parses it into structured intent, a local embedding model retrieves the closest matches, and a second LLM reranks them with explicit reasoning. Three pipeline modes let you trade response speed for recommendation quality.
 
 ---
@@ -319,7 +319,7 @@ Edge cases are excluded from aggregate averages.
 
 ### Results
 
-> ![img.png](../data/img.png)
+> ![img.png](data/img.png)
 ---
 
 ## Demo
